@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tke", "tke\tke.csproj", "{3108ABFB-1678-4D0B-9C8D-816B6EDC540D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3108ABFB-1678-4D0B-9C8D-816B6EDC540D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3108ABFB-1678-4D0B-9C8D-816B6EDC540D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3108ABFB-1678-4D0B-9C8D-816B6EDC540D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3108ABFB-1678-4D0B-9C8D-816B6EDC540D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A31DD85F-8369-43FC-8CD3-A5207ACF8906}
+	EndGlobalSection
+EndGlobal

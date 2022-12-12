@@ -1,0 +1,11 @@
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\bin\Debug\tke.exe.config
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\bin\Debug\tke.exe
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\bin\Debug\tke.pdb
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.csproj.AssemblyReference.cache
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.csproj.SuggestedBindingRedirects.cache
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.Form1.resources
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.Properties.Resources.resources
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.csproj.GenerateResource.cache
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.csproj.CoreCompileInputs.cache
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.exe
+C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\obj\Debug\tke.pdb
