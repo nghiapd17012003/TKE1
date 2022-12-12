@@ -14,8 +14,8 @@ namespace tke
 {
     public partial class Form1 : Form
     {
-        int height = 9;
-        int noOfElevator = 5;
+        int height = 8;
+        int noOfElevator = 4;
         List<Button> upButtonList = new List<Button>();
         List<Button> downButtonList = new List<Button>();
         List<Button> positionScreen = new List<Button>();
