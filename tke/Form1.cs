@@ -32,7 +32,7 @@ namespace tke
             for (int i = 0; i < height; i++)
             {
                 Button singleUp = new Button();
-                singleUp.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\image\upArrow.png");
+                singleUp.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrow.png");
                 singleUp.Location = new Point(0, 40 * i); 
                 singleUp.Size = new Size(37, 30);
                 p.Controls.Add(singleUp);   
@@ -45,7 +45,7 @@ namespace tke
             for (int i = 0; i < height; i++)
             {
                 Button singleDown = new Button();
-                singleDown.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\image\downArrow.png");
+                singleDown.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\downArrow.png");
                 singleDown.Location = new Point(47, 40 * i);
                 singleDown.Size = new Size(37, 30);
                 p.Controls.Add(singleDown);
@@ -90,13 +90,13 @@ namespace tke
             directionScreen.Location = new Point(194, 0);
             directionScreen.Size = new Size(50, 50);
             directionScreen.BackColor = Color.Black;
-            directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\image\upArrowInWhite.png");
+            directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
             elevatorPanel.Controls.Add(directionScreen);
 
             Button elevatorDoor = new Button();
             elevatorDoor.Location = new Point(94, 60);
             elevatorDoor.Size = new Size(100, 140);
-            elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE\tke\image\closeDoor.png");
+            elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
             elevatorPanel.Controls.Add(elevatorDoor);
 
             for (int i = 0; i < height; i++)
