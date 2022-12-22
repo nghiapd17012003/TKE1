@@ -4,24 +4,30 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SimpleTCP;
 
 
 namespace tke
 {
     public partial class Form1 : Form
     {
-        int height = 10;
+        int height = 8;
         int noOfElevator = 4;
+        
         List<Button> upButtonList = new List<Button>();
         List<Button> downButtonList = new List<Button>();
         List<Elevator> elevatorList = new List<Elevator>();
+        SimpleTcpServer server = new SimpleTcpServer();
 
         public Form1()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false; //tranh viec xung dot tai nguyen
         }
 
 
@@ -90,6 +96,11 @@ namespace tke
 
             Controls.Add(controlPanel);
         }
+
+        public void positionSet()
+        {
+            
+        }
         
         public void newElevator(int elevatorNo)
         {
@@ -116,7 +127,7 @@ namespace tke
             elevator.directionScreen.Location = new Point(144, 0);          
             elevator.directionScreen.Size = new Size(50, 50);
             elevator.directionScreen.BackColor = Color.Black;
-            elevator.directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
+            //elevator.directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
             elevatorPanel.Controls.Add(elevator.directionScreen);
 
             elevator.elevatorDoor.Location = new Point(94, 60);
@@ -143,8 +154,9 @@ namespace tke
 
             elevator.mode.Location = new Point(194, 0);
             elevator.mode.Size = new Size(50, 50);
-            elevator.mode.Text = "Priority";
-            elevator.mode.BackColor = Color.White;
+            elevator.mode.Font = new Font("Broadway", 8);
+            //elevator.mode.Text = "Priority";
+            elevator.mode.BackColor = Color.Black;
             elevatorPanel.Controls.Add(elevator.mode);
 
             elevator.connectingStatus.Location = new Point(194, 120);
@@ -173,6 +185,7 @@ namespace tke
                 cabin.BackColor = Color.Blue;
                 cabin.Location = new Point(47, i * 40);//button x-size + distance between button and cabin = 37 + 10 = 47;
                 cabin.Size = new Size(37, 30);
+                cabin.Visible = false;
                 elevator.cabinPosition.Add(cabin);
                 elevatorPanel.Controls.Add(cabin);
 
@@ -182,10 +195,162 @@ namespace tke
             Controls.Add(elevatorPanel);
         }
 
+        private void ClientConnected(Object sender,TcpClient e)
+        {
+            
+        }
+
+        private void Disconnected(Object sender, TcpClient e)
+        { 
+
+
+        }
+
+        private void DataReceived(Object sender, SimpleTCP.Message e)
+        {
+           
+            Byte[] str = Encoding.GetEncoding(28591).GetBytes(e.MessageString);
+
+            var Convertdata = BitConverter.ToString(str);
+            
+            //postion
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
+                {      
+                    txt1.Text = str[i + 6].ToString();
+                    elevatorList[0].positionScreen.Text = str[i + 6].ToString();
+                    elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].BackColor = Color.Blue;//height - current possition because the cabin buttons have been added from top to bottom
+                    elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].Visible = true;
+                    if (str[i + 6] == 0x01)
+                    {
+                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) - 1].Visible = false;
+                    }
+
+                    else if (Convert.ToInt32(str[i + 6]) == height)
+                    {
+                        elevatorList[0].cabinPosition[1].Visible = false;
+                    }
+
+                    else 
+                    {
+                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) - 1].Visible = false;
+                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) + 1].Visible = false;
+                    }
+                }
+            }
+
+            //direction
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
+                {
+                    if (str[i + 5] == 0x11)
+                    {
+                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
+                    }
+
+                    if (str[i + 5] == 0x21)
+                    {
+                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\downArrowInWhite.png");
+                    }
+
+                    if (str[i + 5] == 0x00)
+                    {
+                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\black-color.png");
+                    }
+                }
+            }
+
+            //mode
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x48 && str[i + 5] == 0xFF)
+                {
+                    if (str[i + 6] == 0x40)
+                    {
+                        elevatorList[0].mode.Text = "Fire!";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+                    else if (str[i + 6] == 0x00)
+                    {
+                        elevatorList[0].mode.Text = "";
+                        elevatorList[0].mode.BackColor = Color.Black;
+                    }
+
+                    else if (str[i + 6] == 0x20)
+                    {
+                        elevatorList[0].mode.Text = "Priority";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+
+                    else if (str[i + 6] == 0x80)
+                    {
+                        elevatorList[0].mode.Text = "Full Load!";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+
+                    else if (str[i + 6] == 0x90)
+                    {
+                        elevatorList[0].mode.Text = "Over Load!";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+
+                    else if (str[i + 6] == 0x08)
+                    {
+                        elevatorList[0].mode.Text = "Out Of Order!";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+
+                    
+                }
+
+                else if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
+                {
+                    if (str[i + 8] == 0x94)
+                    {
+                        elevatorList[0].mode.Text = "JU";
+                        elevatorList[0].mode.BackColor = Color.Black;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+                    else if (str[i + 8] == 0x92)
+                    {
+                        elevatorList[0].mode.Text = "IF";
+                        elevatorList[0].mode.BackColor = Color.Yellow;
+                        elevatorList[0].mode.ForeColor = Color.Red;
+                    }
+                }
+            }
+            
+                
+        }
+
+        private void DataReveivedEle(String data)
+        {
+            
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
-            addControlPanel();
+            IPAddress ipHost = IPAddress.Parse("192.168.0.2");
+            int tempport = 5002;
 
+            server = new SimpleTcpServer();
+            server.StringEncoder = Encoding.GetEncoding(28591);//Để nhận được các dữ liệu byte lớn hơn 7F
+            server.Start(ipHost, tempport);
+            server.ClientConnected += ClientConnected;
+            server.ClientDisconnected += Disconnected;
+            server.DataReceived += DataReceived;//bat du lieu lien tuc tu thang
+
+            
+
+            
+            addControlPanel();
+            
             for (int i = 0; i < noOfElevator; i++)
             {
                 newElevator(i);

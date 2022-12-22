@@ -20,3 +20,5 @@ C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\obj\Debug\tke.csproj.GenerateRe
 C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\obj\Debug\tke.csproj.CoreCompileInputs.cache
 C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\obj\Debug\tke.exe
 C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\obj\Debug\tke.pdb
+C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\bin\Debug\SimpleTCP.dll
+C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\obj\Debug\tke.csproj.CopyComplete
