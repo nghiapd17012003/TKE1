@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,6 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Schema;
 using SimpleTCP;
 
 
@@ -119,7 +121,7 @@ namespace tke
             elevator.positionScreen.Location = new Point(94, 0);
             elevator.positionScreen.Size = new Size(50, 50);
             elevator.positionScreen.BackColor = Color.Black;
-            elevator.positionScreen.Text = "1";
+            //elevator.positionScreen.Text = "1";
             elevator.positionScreen.Font = new Font("Broadway", 12);
             elevator.positionScreen.ForeColor = Color.White;
             elevatorPanel.Controls.Add(elevator.positionScreen);
@@ -132,7 +134,7 @@ namespace tke
 
             elevator.elevatorDoor.Location = new Point(94, 60);
             elevator.elevatorDoor.Size = new Size(100, 140);
-            elevator.elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
+           // elevator.elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
             elevatorPanel.Controls.Add(elevator.elevatorDoor);
 
             elevator.closeDoor.Location = new Point(244, 60);
@@ -182,10 +184,9 @@ namespace tke
                 elevatorPanel.Controls.Add(numberButton);
 
                 Button cabin = new Button();
-                cabin.BackColor = Color.Blue;
+                cabin.BackColor = Color.Black;
                 cabin.Location = new Point(47, i * 40);//button x-size + distance between button and cabin = 37 + 10 = 47;
                 cabin.Size = new Size(37, 30);
-                cabin.Visible = false;
                 elevator.cabinPosition.Add(cabin);
                 elevatorPanel.Controls.Add(cabin);
 
@@ -220,22 +221,20 @@ namespace tke
                 {      
                     txt1.Text = str[i + 6].ToString();
                     elevatorList[0].positionScreen.Text = str[i + 6].ToString();
-                    elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].BackColor = Color.Blue;//height - current possition because the cabin buttons have been added from top to bottom
-                    elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].Visible = true;
-                    if (str[i + 6] == 0x01)
-                    {
-                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) - 1].Visible = false;
-                    }
+                    //elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].BackColor = Color.Blue;//height - current possition because the cabin buttons have been added from top to bottom
+                   
 
-                    else if (Convert.ToInt32(str[i + 6]) == height)
+                    for (int j = 0; j < height; j++)
                     {
-                        elevatorList[0].cabinPosition[1].Visible = false;
-                    }
+                        if (height - j == Convert.ToInt32(str[i + 6]))
+                        {
+                            elevatorList[0].cabinPosition[j].Visible = true;
+                        }
 
-                    else 
-                    {
-                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) - 1].Visible = false;
-                        elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6]) + 1].Visible = false;
+                        else 
+                        {
+                            elevatorList[0].cabinPosition[j].Visible = false;
+                        }
                     }
                 }
             }
@@ -326,10 +325,52 @@ namespace tke
                     }
                 }
             }
-            
+
+            //elevatorDoor
+            for (int i = 0; i < str.Length; i++)
+            {
+               // try
+                //{
+                    if (str[i] == 0x01 && str[i + 1] == 0x00 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x73 && str[i + 5] == 0xFF)
+                    {
+
+                        if (str[i + 6] == 0x08)
+                        {
+                            elevatorList[0].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
+                            for (int j = 0; j < height; j++)
+                            {
+                                elevatorList[0].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoorMini.png");
+                            }
+                        }
+
+                        else if (str[i + 6] == 0x04)
+                        {
+                            elevatorList[0].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoor.png");
+                            for (int j = 0; j < height; j++)
+                            {
+                                elevatorList[0].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoorMini.png");
+                            }
+                        }
+                    }
+                //}
+
+                /*catch(IndexOutOfRangeException ea)
+                {
+                    Console.WriteLine(ea.Message);
+                }*/
                 
+               
+            }
+        }
+        private void openButtonClick(Object sender, EventArgs e)
+        {
+            
         }
 
+        private void closeButtonClick(Object sender, EventArgs e)
+        {
+            
+        }
         private void DataReveivedEle(String data)
         {
             
@@ -355,6 +396,8 @@ namespace tke
             {
                 newElevator(i);
             }
+
+            openButtonClick(sender, e);
         }
     }
 }
