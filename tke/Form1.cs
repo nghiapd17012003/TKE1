@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Schema;
@@ -20,7 +21,7 @@ namespace tke
     {
         int height = 8;
         int noOfElevator = 4;
-        
+
         List<Button> upButtonList = new List<Button>();
         List<Button> downButtonList = new List<Button>();
         List<Elevator> elevatorList = new List<Elevator>();
@@ -73,14 +74,14 @@ namespace tke
             for (int i = 0; i < height; i++)
             {
                 Label level = new Label();
-                level.Text = "" + (height -i);
+                level.Text = "" + (height - i);
                 level.Location = new Point(94, 40 * i);
                 level.Size = new Size(37, 30);
                 level.TextAlign = (System.Drawing.ContentAlignment)HorizontalAlignment.Center;
                 level.TextAlign = (System.Drawing.ContentAlignment)System.Windows.Forms.VisualStyles.VerticalAlignment.Bottom;
-               
-                
-                p.Controls.Add(level);              
+
+
+                p.Controls.Add(level);
             }
         }
 
@@ -101,9 +102,9 @@ namespace tke
 
         public void positionSet()
         {
-            
+
         }
-        
+
         public void newElevator(int elevatorNo)
         {
             Elevator elevator = new Elevator();
@@ -117,7 +118,7 @@ namespace tke
             elevatorPanel.Location = new Point(240 + elevatorNo * 320, 0);//control panel width + control panel left = 200 + 20 = 220, elevator panel width + space between each panel = 300 + 20 = 320;
             elevatorPanel.BorderStyle = BorderStyle.Fixed3D;
 
-            
+
             elevator.positionScreen.Location = new Point(94, 0);
             elevator.positionScreen.Size = new Size(50, 50);
             elevator.positionScreen.BackColor = Color.Black;
@@ -126,7 +127,7 @@ namespace tke
             elevator.positionScreen.ForeColor = Color.White;
             elevatorPanel.Controls.Add(elevator.positionScreen);
 
-            elevator.directionScreen.Location = new Point(144, 0);          
+            elevator.directionScreen.Location = new Point(144, 0);
             elevator.directionScreen.Size = new Size(50, 50);
             elevator.directionScreen.BackColor = Color.Black;
             //elevator.directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
@@ -134,7 +135,7 @@ namespace tke
 
             elevator.elevatorDoor.Location = new Point(94, 60);
             elevator.elevatorDoor.Size = new Size(100, 140);
-           // elevator.elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
+            // elevator.elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
             elevatorPanel.Controls.Add(elevator.elevatorDoor);
 
             elevator.closeDoor.Location = new Point(244, 60);
@@ -145,6 +146,7 @@ namespace tke
             elevator.openDoor.Location = new Point(194, 60);
             elevator.openDoor.Size = new Size(50, 50);
             elevator.openDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoorButton.png");
+
             elevatorPanel.Controls.Add(elevator.openDoor);
 
             elevator.status.Location = new Point(244, 0);
@@ -177,9 +179,9 @@ namespace tke
             for (int i = 0; i < height; i++)
             {
                 Button numberButton = new Button();
-                numberButton.Location = new Point(0,  i * 40);//x-coordinate = 0 because the Location method count from each panel, not the top left corner of the client! y-distance between button + y-button size = 10 + 30 = 40
+                numberButton.Location = new Point(0, i * 40);//x-coordinate = 0 because the Location method count from each panel, not the top left corner of the client! y-distance between button + y-button size = 10 + 30 = 40
                 numberButton.Text = "" + (height - i);
-                numberButton.Size = new Size(37, 30);    
+                numberButton.Size = new Size(37, 30);
                 elevator.insideEleButton.Add(numberButton);
                 elevatorPanel.Controls.Add(numberButton);
 
@@ -192,51 +194,60 @@ namespace tke
 
             }
             elevatorList.Add(elevator);
-            
+
             Controls.Add(elevatorPanel);
         }
 
-        private void ClientConnected(Object sender,TcpClient e)
+        private void ClientConnected(Object sender, TcpClient e)
         {
-            
+
         }
 
         private void Disconnected(Object sender, TcpClient e)
-        { 
+        {
 
 
         }
 
         private void DataReceived(Object sender, SimpleTCP.Message e)
         {
-           
+            int a = 0;
             Byte[] str = Encoding.GetEncoding(28591).GetBytes(e.MessageString);
 
             var Convertdata = BitConverter.ToString(str);
-            
+
             //postion
             for (int i = 0; i < str.Length; i++)
             {
-                if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
-                {      
-                    txt1.Text = str[i + 6].ToString();
-                    elevatorList[0].positionScreen.Text = str[i + 6].ToString();
-                    //elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].BackColor = Color.Blue;//height - current possition because the cabin buttons have been added from top to bottom
-                   
-
-                    for (int j = 0; j < height; j++)
+                try
+                {
+                    if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
                     {
-                        if (height - j == Convert.ToInt32(str[i + 6]))
-                        {
-                            elevatorList[0].cabinPosition[j].Visible = true;
-                        }
 
-                        else 
+                        elevatorList[a].positionScreen.Text = str[i + 6].ToString();
+                        //elevatorList[0].cabinPosition[height - Convert.ToInt32(str[i + 6])].BackColor = Color.Blue;//height - current possition because the cabin buttons have been added from top to bottom
+
+
+                        for (int j = 0; j < height; j++)
                         {
-                            elevatorList[0].cabinPosition[j].Visible = false;
+                            if (height - j == Convert.ToInt32(str[i + 6]))
+                            {
+                                elevatorList[a].cabinPosition[j].Visible = true;
+                            }
+
+                            else
+                            {
+                                elevatorList[a].cabinPosition[j].Visible = false;
+                            }
                         }
                     }
                 }
+
+                catch (IndexOutOfRangeException ea)
+                {
+                    Console.WriteLine(ea.Message);
+                }
+
             }
 
             //direction
@@ -246,17 +257,17 @@ namespace tke
                 {
                     if (str[i + 5] == 0x11)
                     {
-                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
+                        elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
                     }
 
                     if (str[i + 5] == 0x21)
                     {
-                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\downArrowInWhite.png");
+                        elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\downArrowInWhite.png");
                     }
 
                     if (str[i + 5] == 0x00)
                     {
-                        elevatorList[0].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\black-color.png");
+                        elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\black-color.png");
                     }
                 }
             }
@@ -268,60 +279,60 @@ namespace tke
                 {
                     if (str[i + 6] == 0x40)
                     {
-                        elevatorList[0].mode.Text = "Fire!";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "Fire!";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
                     else if (str[i + 6] == 0x00)
                     {
-                        elevatorList[0].mode.Text = "";
-                        elevatorList[0].mode.BackColor = Color.Black;
+                        elevatorList[a].mode.Text = "";
+                        elevatorList[a].mode.BackColor = Color.Black;
                     }
 
                     else if (str[i + 6] == 0x20)
                     {
-                        elevatorList[0].mode.Text = "Priority";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "Priority";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
 
                     else if (str[i + 6] == 0x80)
                     {
-                        elevatorList[0].mode.Text = "Full Load!";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "Full Load!";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
 
                     else if (str[i + 6] == 0x90)
                     {
-                        elevatorList[0].mode.Text = "Over Load!";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "Over Load!";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
 
                     else if (str[i + 6] == 0x08)
                     {
-                        elevatorList[0].mode.Text = "Out Of Order!";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "Out Of Order!";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
 
-                    
+
                 }
 
                 else if (str[i] == 0x07 && str[i + 1] == 0x40 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x47)
                 {
                     if (str[i + 8] == 0x94)
                     {
-                        elevatorList[0].mode.Text = "JU";
-                        elevatorList[0].mode.BackColor = Color.Black;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "JU";
+                        elevatorList[a].mode.BackColor = Color.Black;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
                     else if (str[i + 8] == 0x92)
                     {
-                        elevatorList[0].mode.Text = "IF";
-                        elevatorList[0].mode.BackColor = Color.Yellow;
-                        elevatorList[0].mode.ForeColor = Color.Red;
+                        elevatorList[a].mode.Text = "IF";
+                        elevatorList[a].mode.BackColor = Color.Yellow;
+                        elevatorList[a].mode.ForeColor = Color.Red;
                     }
                 }
             }
@@ -329,48 +340,185 @@ namespace tke
             //elevatorDoor
             for (int i = 0; i < str.Length; i++)
             {
-               // try
-                //{
+                try
+                {
+
                     if (str[i] == 0x01 && str[i + 1] == 0x00 && str[i + 2] == 0x1D && str[i + 3] == 0x00 && str[i + 4] == 0x73 && str[i + 5] == 0xFF)
                     {
 
                         if (str[i + 6] == 0x08)
                         {
-                            elevatorList[0].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
+                            elevatorList[a].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoor.png");
                             for (int j = 0; j < height; j++)
                             {
-                                elevatorList[0].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoorMini.png");
+                                elevatorList[a].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\closeDoorMini.png");
                             }
                         }
 
                         else if (str[i + 6] == 0x04)
                         {
-                            elevatorList[0].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoor.png");
+                            elevatorList[a].elevatorDoor.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoor.png");
                             for (int j = 0; j < height; j++)
                             {
-                                elevatorList[0].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoorMini.png");
+                                elevatorList[a].cabinPosition[j].Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\openDoorMini.png");
                             }
                         }
                     }
-                //}
+                }
 
-                /*catch(IndexOutOfRangeException ea)
+                catch (IndexOutOfRangeException ea)
                 {
                     Console.WriteLine(ea.Message);
-                }*/
-                
-               
+                }
+
+
+            }
+
+            //light
+            for (int i = 0; i < str.Length; i++)
+            {
+                try
+                {
+                    if (str[i] == 0x01 && str[i + 1] == 0x00 && str[i + 2] == 0x15 && str[i + 3] == 0x00 && str[i + 4] == 0x60 && str[i + 6] == 0x00)
+                    {
+                        if (str[i + 5] == 0x01)
+                        {
+                            elevatorList[a].insideEleButton[height - 1].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x02)
+                        {
+                            elevatorList[a].insideEleButton[height - 2].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x04)
+                        {
+                            elevatorList[a].insideEleButton[height - 3].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x08)
+                        {
+                            elevatorList[a].insideEleButton[height - 4].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x10)
+                        {
+                            elevatorList[a].insideEleButton[height - 5].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x20)
+                        {
+                            elevatorList[a].insideEleButton[height - 6].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x40)
+                        {
+                            elevatorList[a].insideEleButton[height - 7].BackColor = Color.White;
+                        }
+
+                        else if (str[i + 5] == 0x80)
+                        {
+                            elevatorList[a].insideEleButton[height - 8].BackColor = Color.White;
+                        }
+
+                    }
+                }
+
+                catch (IndexOutOfRangeException ea)
+                {
+                    Console.WriteLine(ea.Message);
+                }
+
             }
         }
-        private void openButtonClick(Object sender, EventArgs e)
+        private void openButtonMouseDown(int j)
         {
-            
+            Byte[] open = new byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x30, 0x04, 0x04, 0xDE, 0x00, 0x00 };
+            Byte[] close = new byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x30, 0x04, 0x00, 0xDE, 0x00, 0x00 };
+            server.Broadcast(open);
+            elevatorList[j].openDoor.BackColor = Color.Red;
+            //Thread.Sleep(3000);           
+            //server.Broadcast(close);
+            //MessageBox.Show("sent");     
         }
 
-        private void closeButtonClick(Object sender, EventArgs e)
+        private void openButtonMouseUp(int j)
         {
-            
+            elevatorList[j].openDoor.BackColor = Color.White;
+            Thread.Sleep(3000);
         }
+
+        private void closeButtonMouseDown(int j)
+        {
+            Byte[] close = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x30, 0x04, 0x00, 0xDE, 0x00, 0x00 };
+            server.Broadcast(close);
+            elevatorList[j].closeDoor.BackColor = Color.Red;
+        }
+
+        private void closeButtonMouseUp(int j)
+        {
+            Thread.Sleep(3000);
+            elevatorList[j].closeDoor.BackColor = Color.White;
+        }
+
+        //level 1
+        private void level1ButtonMouseDown(int j)
+        {
+            Byte[] floor1Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x01, 0x01, 0x7A, 0x00, 0x00 };
+            // Byte[] floor1Byte = new Byte[23] { 0x01, 0x80, 0x15, 0x00, 0x20, 0x02, 0x02, 0x21, 0x01, 0x80, 0x15, 0x00, 0x36, 0x01, 0x01, 0x22, 0x02, 0x00, 0x15, 0x00, 0x01, 0x04, 0x04 };
+            server.Broadcast(floor1Byte);
+            elevatorList[j].insideEleButton[height - 1].BackColor = Color.Red;
+        }
+
+        private void level2ButtonMouseDown(int j)
+        {
+            Byte[] floor2Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x02, 0x02, 0x21, 0x00, 0x00 };
+            server.Broadcast(floor2Byte);
+            elevatorList[j].insideEleButton[height - 2].BackColor= Color.Red;
+        }
+
+        private void level3ButtonMouseDown(int j)
+        {
+            Byte[] floor3Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x04, 0x04, 0x6B, 0x00, 0x00 };
+            server.Broadcast(floor3Byte);
+            elevatorList[j].insideEleButton[height - 3].BackColor = Color.Red;
+        }
+
+        private void level4ButtonMouseDown(int j)
+        {
+            Byte[] floor4Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x08, 0x08, 0x89, 0x00, 0x00 };
+            server.Broadcast(floor4Byte);
+            elevatorList[j].insideEleButton[height - 4].BackColor = Color.Red;
+        }
+
+        private void level5ButtonMouseDown(int j)
+        {
+            Byte[] floor5Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x10, 0x10, 0xD3, 0x00, 0x00 };
+            server.Broadcast(floor5Byte);
+            elevatorList[j].insideEleButton[height - 5].BackColor = Color.Red;
+        }
+
+        private void level6ButtonMouseDown(int j)
+        {
+            Byte[] floor6Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x20, 0x20, 0xFB, 0x00, 0x00 };
+            server.Broadcast(floor6Byte);
+            elevatorList[j].insideEleButton[height - 6].BackColor = Color.Red;
+        }
+
+        private void level7ButtonMouseDown(int j)
+        {
+            Byte[] floor7Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x40, 0x40, 0x05, 0x00, 0x00 };
+            server.Broadcast(floor7Byte);
+            elevatorList[j].insideEleButton[height - 7].BackColor = Color.Red;
+        }
+
+        private void level8ButtonMouseDown(int j)
+        {
+            Byte[] floor8Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x80, 0x80, 0x65, 0x00, 0x00};
+            server.Broadcast(floor8Byte);
+            elevatorList[j].insideEleButton[height - 8].BackColor = Color.Red;
+        }
+       
         private void DataReveivedEle(String data)
         {
             
@@ -386,18 +534,32 @@ namespace tke
             server.ClientConnected += ClientConnected;
             server.ClientDisconnected += Disconnected;
             server.DataReceived += DataReceived;//bat du lieu lien tuc tu thang
-
-            
+            byte[] sendByte = { 0x01, 0x02 };
+            server.Broadcast(sendByte);
 
             
             addControlPanel();
-            
+
+          
             for (int i = 0; i < noOfElevator; i++)
             {
+                int tempi = i;
                 newElevator(i);
-            }
+                elevatorList[i].openDoor.MouseDown += (sender1, ex) => this.openButtonMouseDown(tempi);
+                elevatorList[i].openDoor.MouseUp += (sender1, ex) => this.openButtonMouseUp(tempi);
+                elevatorList[i].closeDoor.MouseDown += (sender1, ex) => this.closeButtonMouseDown(tempi);
+                elevatorList[i].closeDoor.MouseUp += (sender1, ex) => this.closeButtonMouseUp(tempi);
 
-            openButtonClick(sender, e);
+                elevatorList[i].insideEleButton[height - 1].MouseDown += (sender1, ex) => this.level1ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 2].MouseDown += (sender1, ex) => this.level2ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 3].MouseDown += (sender1, ex) => this.level3ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 4].MouseDown += (sender1, ex) => this.level4ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 5].MouseDown += (sender1, ex) => this.level5ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 6].MouseDown += (sender1, ex) => this.level6ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 7].MouseDown += (sender1, ex) => this.level7ButtonMouseDown(tempi);
+                elevatorList[i].insideEleButton[height - 8].MouseDown += (sender1, ex) => this.level8ButtonMouseDown(tempi);
+            }
+          
         }
     }
 }
