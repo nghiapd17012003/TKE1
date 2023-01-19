@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,16 +22,18 @@ namespace tke
     {
         int height = 8;
         int noOfElevator = 4;
-
+        string X = "07-40-1D-00-47";
+        Boolean connectionStatus = false;
         List<Button> upButtonList = new List<Button>();
         List<Button> downButtonList = new List<Button>();
         List<Elevator> elevatorList = new List<Elevator>();
         SimpleTcpServer server = new SimpleTcpServer();
-
+        
         public Form1()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false; //tranh viec xung dot tai nguyen
+
         }
 
 
@@ -100,10 +103,7 @@ namespace tke
             Controls.Add(controlPanel);
         }
 
-        public void positionSet()
-        {
-
-        }
+       
 
         public void newElevator(int elevatorNo)
         {
@@ -151,7 +151,7 @@ namespace tke
 
             elevator.status.Location = new Point(244, 0);
             elevator.status.Size = new Size(50, 50);
-            elevator.status.Text = "Stop";
+            //elevator.status.Text = "Stop";
             elevator.status.BackColor = Color.Black;
             elevator.status.ForeColor = Color.White;
             elevatorPanel.Controls.Add(elevator.status);
@@ -165,8 +165,6 @@ namespace tke
 
             elevator.connectingStatus.Location = new Point(194, 120);
             elevator.connectingStatus.Size = new Size(100, 80);
-            elevator.connectingStatus.Text = "Disconected";
-            elevator.connectingStatus.BackColor = Color.White;
             elevatorPanel.Controls.Add(elevator.connectingStatus);
 
             elevator.eventCapturer.Location = new Point(94, 200);
@@ -213,9 +211,21 @@ namespace tke
         {
             int a = 0;
             Byte[] str = Encoding.GetEncoding(28591).GetBytes(e.MessageString);
-
             var Convertdata = BitConverter.ToString(str);
 
+            //connecting status
+            int z = Convertdata.Length;
+            connectionStatus = true;
+
+            //if (Convertdata.IndexOf(X) >= 0)
+            if(connectionStatus == true)
+            {
+                elevatorList[a].connectingStatus.Text = "Connected";
+                elevatorList[a].connectingStatus.BackColor = Color.Green;
+            }
+            
+            
+            
             //postion
             for (int i = 0; i < str.Length; i++)
             {
@@ -258,16 +268,19 @@ namespace tke
                     if (str[i + 5] == 0x11)
                     {
                         elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\upArrowInWhite.png");
+                        elevatorList[a].status.Text = "Moving";
                     }
 
                     if (str[i + 5] == 0x21)
                     {
                         elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\downArrowInWhite.png");
+                        elevatorList[a].status.Text = "Moving";
                     }
 
                     if (str[i + 5] == 0x00)
                     {
                         elevatorList[a].directionScreen.Image = Image.FromFile(@"C:\Users\nghia\OneDrive\Desktop\project\TKE1\tke\image\black-color.png");
+                        elevatorList[a].status.Text = "Stop";
                     }
                 }
             }
@@ -374,7 +387,7 @@ namespace tke
 
             }
 
-            //light
+            //inside button light
             for (int i = 0; i < str.Length; i++)
             {
                 try
@@ -430,7 +443,101 @@ namespace tke
                 }
 
             }
+
+            //light external call up
+            for (int i = 0; i < str.Length; i++)
+            {
+                try
+                {
+                    if (str[i] == 0x02 && str[i + 1] == 0x00 && str[i + 2] == 0x15 && str[i + 4] == 0x01 && str[i + 5] == 0x01 && str[i + 6] == 0x00)
+                    {
+                        switch (str[i + 3])
+                        {
+                            case 0x01:
+                                upButtonList[height - 1].BackColor = Color.White;
+                                break;
+
+                            case 0x02:
+                                upButtonList[height - 2].BackColor = Color.White;
+                                break;
+
+                            case 0x03:
+                                upButtonList[height - 3].BackColor = Color.White;
+                                break;
+
+                            case 0x04:
+                                upButtonList[height - 4].BackColor = Color.White;
+                                break;
+
+                            case 0x05:
+                                upButtonList[height - 5].BackColor = Color.White;
+                                break;
+
+                            case 0x06:
+                                upButtonList[height - 6].BackColor = Color.White;
+                                break;
+
+                            case 0x07:
+                                upButtonList[height - 7].BackColor = Color.White;
+                                break;
+                        }
+                    }
+                }
+
+                catch (IndexOutOfRangeException ea)
+                {
+                    Console.WriteLine(ea.Message);
+                }
+            }
+
+            //light external call down
+            for (int i = 0; i < str.Length; i++)
+            {
+                try
+                {
+                    if (str[i] == 0x02 && str[i + 1] == 0x00 && str[i + 2] == 0x15 && str[i + 4] == 0x01 && str[i + 5] == 0x02 && str[i + 6] == 0x00)
+                    {
+                        switch (str[i + 3])
+                        {
+                            case 0x02:
+                                downButtonList[height - 2].BackColor = Color.White;
+                                break;
+
+                            case 0x03:
+                                downButtonList[height - 3].BackColor = Color.White;
+                                break;
+
+                            case 0x04:
+                                downButtonList[height - 4].BackColor = Color.White;
+                                break;
+
+                            case 0x05:
+                                downButtonList[height - 5].BackColor = Color.White;
+                                break;
+
+                            case 0x06:
+                                downButtonList[height - 6].BackColor = Color.White;
+                                break;
+
+                            case 0x07:
+                                downButtonList[height - 7].BackColor = Color.White;
+                                break;
+
+                            case 0x08:
+                                downButtonList[height - 8].BackColor = Color.White;
+                                break;
+                        }
+                    }
+                }
+
+                catch (IndexOutOfRangeException ea)
+                {
+                    Console.WriteLine(ea.Message);
+                }
+            }
         }
+
+
         private void openButtonMouseDown(int j)
         {
             Byte[] open = new byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x30, 0x04, 0x04, 0xDE, 0x00, 0x00 };
@@ -474,7 +581,7 @@ namespace tke
         {
             Byte[] floor2Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x02, 0x02, 0x21, 0x00, 0x00 };
             server.Broadcast(floor2Byte);
-            elevatorList[j].insideEleButton[height - 2].BackColor= Color.Red;
+            elevatorList[j].insideEleButton[height - 2].BackColor = Color.Red;
         }
 
         private void level3ButtonMouseDown(int j)
@@ -514,11 +621,139 @@ namespace tke
 
         private void level8ButtonMouseDown(int j)
         {
-            Byte[] floor8Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x80, 0x80, 0x65, 0x00, 0x00};
+            Byte[] floor8Byte = new Byte[13] { 0x08, 0x00, 0x00, 0x01, 0x80, 0x15, 0x00, 0x20, 0x80, 0x80, 0x65, 0x00, 0x00 };
             server.Broadcast(floor8Byte);
             elevatorList[j].insideEleButton[height - 8].BackColor = Color.Red;
         }
-       
+
+        public void externalCallUp1()
+        {
+            Byte[] up1 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x81, 0x15, 0x01, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up1part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x81, 0x15, 0x01, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up1);
+            server.Broadcast(up1part2);
+            upButtonList[height - 1].BackColor = Color.Red;
+        }
+
+        public void externalCallUp2()
+        {
+            Byte[] up2 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x82, 0x15, 0x02, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up2part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x82, 0x15, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up2);
+            server.Broadcast(up2part2);
+            upButtonList[height - 2].BackColor = Color.Red;
+        }
+
+        public void externalCallUp3()
+        {
+            Byte[] up3 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x83, 0x15, 0x03, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up3part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x83, 0x15, 0x03, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up3);
+            server.Broadcast(up3part2);
+            upButtonList[height - 3].BackColor = Color.Red;  
+        }
+
+        public void externalCallUp4()
+        {
+            Byte[] up4 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x84, 0x15, 0x04, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up4part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x84, 0x15, 0x04, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up4);
+            server.Broadcast(up4part2);
+            upButtonList[height - 4].BackColor = Color.Red;
+        }
+
+        public void externalCallUp5()
+        {
+            Byte[] up5 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x85, 0x15, 0x05, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up5part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x85, 0x15, 0x05, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up5);
+            server.Broadcast(up5part2);
+            upButtonList[height - 5].BackColor = Color.Red;
+        }
+
+        public void externalCallUp6()
+        {
+            Byte[] up6 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x86, 0x15, 0x06, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up6part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x86, 0x15, 0x06, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up6);
+            server.Broadcast(up6part2);
+            upButtonList[height - 6].BackColor = Color.Red;
+        }
+
+        public void externalCallUp7()
+        {
+            Byte[] up7 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x87, 0x15, 0x07, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00 };
+            Byte[] up7part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x87, 0x15, 0x07, 0x00, 0x01, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(up7);
+            server.Broadcast(up7part2);
+            upButtonList[height - 7].BackColor = Color.Red;
+        }
+
+
+        public void externalCallDown2() 
+        {
+            Byte[] down2 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x82, 0x15, 0x02, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down2part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x82, 0x15, 0x02, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down2);
+            
+            server.Broadcast(down2part2);
+            downButtonList[height - 2].BackColor = Color.Red;
+        }
+
+        public void externalCallDown3()
+        {
+            Byte[] down3 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x83, 0x15, 0x03, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down3part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x83, 0x15, 0x03, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down3);
+            server.Broadcast(down3part2);
+            downButtonList[height - 3].BackColor = Color.Red;
+        }
+
+        public void externalCallDown4()
+        {
+            Byte[] down4 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x84, 0x15, 0x04, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down4part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x84, 0x15, 0x04, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down4);
+            server.Broadcast(down4part2);
+            downButtonList[height - 4].BackColor = Color.Red;
+        }
+
+        public void externalCallDown5()
+        {
+            Byte[] down5 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x85, 0x15, 0x05, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down5part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x85, 0x15, 0x05, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down5);
+            server.Broadcast(down5part2);
+            downButtonList[height - 5].BackColor = Color.Red;
+        }
+
+        public void externalCallDown6()
+        {
+            Byte[] down6 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x86, 0x15, 0x06, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down6part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x86, 0x15, 0x06, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down6);
+            server.Broadcast(down6part2);
+            downButtonList[height - 6].BackColor = Color.Red;
+        }
+
+        public void externalCallDown7()
+        {
+            Byte[] down7 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x87, 0x15, 0x07, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down7part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x87, 0x15, 0x07, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down7);
+            server.Broadcast(down7part2);
+            downButtonList[height - 7].BackColor = Color.Red;
+        }
+
+        public void externalCallDown8()
+        {
+            Byte[] down8 = new Byte[13] { 0x08, 0x00, 0x00, 0x02, 0x88, 0x15, 0x08, 0x00, 0x02, 0x02, 0x03, 0x00, 0x00 };
+            Byte[] down8part2 = new byte[13] { 0x08, 0x00, 0x00, 0x02, 0x88, 0x15, 0x08, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00 };
+            server.Broadcast(down8);
+            server.Broadcast(down8part2);
+            downButtonList[height - 8].BackColor = Color.Red;
+        }
+
         private void DataReveivedEle(String data)
         {
             
@@ -526,7 +761,7 @@ namespace tke
         private void Form1_Load(object sender, EventArgs e)
         {
             IPAddress ipHost = IPAddress.Parse("192.168.0.2");
-            int tempport = 5002;
+            int tempport = 10011;
 
             server = new SimpleTcpServer();
             server.StringEncoder = Encoding.GetEncoding(28591);//Để nhận được các dữ liệu byte lớn hơn 7F
@@ -534,12 +769,12 @@ namespace tke
             server.ClientConnected += ClientConnected;
             server.ClientDisconnected += Disconnected;
             server.DataReceived += DataReceived;//bat du lieu lien tuc tu thang
+            
+
             byte[] sendByte = { 0x01, 0x02 };
             server.Broadcast(sendByte);
 
-            
             addControlPanel();
-
           
             for (int i = 0; i < noOfElevator; i++)
             {
@@ -558,8 +793,27 @@ namespace tke
                 elevatorList[i].insideEleButton[height - 6].MouseDown += (sender1, ex) => this.level6ButtonMouseDown(tempi);
                 elevatorList[i].insideEleButton[height - 7].MouseDown += (sender1, ex) => this.level7ButtonMouseDown(tempi);
                 elevatorList[i].insideEleButton[height - 8].MouseDown += (sender1, ex) => this.level8ButtonMouseDown(tempi);
+
+                upButtonList[height - 1].MouseDown += (sender1, ex) => this.externalCallUp1();
+                upButtonList[height - 2].MouseDown += (sender1, ex) => this.externalCallUp2();
+                upButtonList[height - 3].MouseDown += (sender1, ex) => this.externalCallUp3();
+                upButtonList[height - 4].MouseDown += (sender1, ex) => this.externalCallUp4();
+                upButtonList[height - 5].MouseDown += (sender1, ex) => this.externalCallUp5();
+                upButtonList[height - 6].MouseDown += (sender1, ex) => this.externalCallUp6();
+                upButtonList[height - 7].MouseDown += (sender1, ex) => this.externalCallUp7();
+
+                downButtonList[height - 2].MouseDown += (sender1, ex) => this.externalCallDown2();
+                downButtonList[height - 3].MouseDown += (sender1, ex) => this.externalCallDown3();
+                downButtonList[height - 4].MouseDown += (sender1, ex) => this.externalCallDown4();
+                downButtonList[height - 5].MouseDown += (sender1, ex) => this.externalCallDown5();
+                downButtonList[height - 6].MouseDown += (sender1, ex) => this.externalCallDown6();
+                downButtonList[height - 7].MouseDown += (sender1, ex) => this.externalCallDown7();
+                downButtonList[height - 8].MouseDown += (sender1, ex) => this.externalCallDown8();
+
             }
-          
+
+            
         }
-    }
+        
+    } 
 }

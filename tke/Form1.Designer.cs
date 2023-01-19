@@ -1,4 +1,8 @@
-﻿namespace tke
+﻿using System.Drawing;
+using System;
+
+
+namespace tke
 {
     partial class Form1
     {
@@ -31,6 +35,8 @@
             this.components = new System.ComponentModel.Container();
             this.txt1 = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            
             this.SuspendLayout();
             // 
             // txt1
@@ -46,6 +52,11 @@
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+
+            //timer1
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_tick);
             // 
             // Form1
             // 
@@ -61,10 +72,18 @@
 
         }
 
+        public void timer1_tick(Object sender, EventArgs e)
+        {
+            elevatorList[0].connectingStatus.Text = "Disconnected!";
+            elevatorList[0].connectingStatus.BackColor = Color.Red;
+            connectionStatus = false;
+        }
+
         #endregion
 
         private System.Windows.Forms.TextBox txt1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
