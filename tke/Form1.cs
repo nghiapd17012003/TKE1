@@ -235,6 +235,7 @@ namespace tke
             elevatorList[elevatorNumberInput].mode.Text = "";
             elevatorList[elevatorNumberInput].mode.BackColor= Color.Black;
             elevatorList[elevatorNumberInput].directionScreen.Text = "";
+            
         }
 
         private void ClientConnected(Object sender, TcpClient e)
@@ -462,8 +463,6 @@ namespace tke
                     }
                 }
             }
-
-            
 
             //elevatorDoor
             for (int i = 0; i < str.Length; i++)
