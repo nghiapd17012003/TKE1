@@ -1,5 +1,6 @@
 # Elevator Control System
 
+## About
 This is an application designed to help users monitor and control the statuses of elevators in a system. The application provides real-time data on:
 
 - **Position**: Current floor of the elevator.
